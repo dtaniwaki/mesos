@@ -310,6 +310,15 @@ Future<Image> StoreProcess::_get(
   const string name = stringify(reference);
 
   if (!pulling.contains(name)) {
+    const string stagingRootPath = paths::getStagingDir(flags.docker_store_dir);
+    if (!os::exists(stagingRootPath)) {
+      Try<Nothing> mkdir = os::mkdir(stagingRootPath);
+      if (mkdir.isError()) {
+        return Error("Failed to create Docker store staging directory: " +
+                     mkdir.error());
+      }
+    }
+
     Try<string> staging =
       os::mkdtemp(paths::getStagingTempDir(flags.docker_store_dir));
 
